@@ -12,6 +12,17 @@ export type Scalars = {
   Float: number;
 };
 
+export type GetUserResponse = {
+  __typename?: 'GetUserResponse';
+  createdAt: Scalars['String'];
+  createdBy: Scalars['String'];
+  email: Scalars['String'];
+  id: Scalars['ID'];
+  role: Scalars['String'];
+  updatedAt: Scalars['String'];
+  updatedBy: Scalars['String'];
+};
+
 export type LogInResponse = {
   __typename?: 'LogInResponse';
   token: Scalars['String'];
@@ -30,7 +41,13 @@ export type MutationLoginArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  users?: Maybe<Array<Maybe<User>>>;
+  user?: Maybe<GetUserResponse>;
+  users?: Maybe<Array<Maybe<GetUserResponse>>>;
+};
+
+
+export type QueryUserArgs = {
+  userId?: InputMaybe<Scalars['String']>;
 };
 
 export enum Role {
@@ -39,15 +56,3 @@ export enum Role {
   Unknown = 'UNKNOWN',
   User = 'USER'
 }
-
-export type User = {
-  __typename?: 'User';
-  createdAt: Scalars['String'];
-  createdBy: Scalars['String'];
-  email: Scalars['String'];
-  id: Scalars['ID'];
-  password: Scalars['String'];
-  role: Scalars['String'];
-  updatedAt: Scalars['String'];
-  updatedBy: Scalars['String'];
-};

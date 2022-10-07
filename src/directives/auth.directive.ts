@@ -1,9 +1,12 @@
-import { getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
-import { defaultFieldResolver } from "graphql";
-import { GraphQLSchema } from "graphql/type/schema";
+import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils';
+import { defaultFieldResolver } from 'graphql';
+import { GraphQLSchema } from 'graphql/type/schema';
+import { AuthDirectiveTransformerType } from '../type/common';
 
-export function authDirective(directiveName: string) {
-  const typeDirectiveArgumentMaps: Record<string, any> = {};
+export function authDirective(
+  directiveName: string,
+): AuthDirectiveTransformerType {
+  const typeDirectiveArgumentMaps: Record<string, Record<string, unknown>> = {};
   return {
     authDirectiveTransformer: (schema: GraphQLSchema) =>
       mapSchema(schema, {
@@ -25,7 +28,7 @@ export function authDirective(directiveName: string) {
               fieldConfig.resolve = function (source, args, context, info) {
                 const user = context.currentUser || {};
                 if (user.role !== requires) {
-                  throw new Error("Unauthenticated Access!");
+                  throw new Error('Unauthenticated Access!');
                 }
                 return resolve(source, args, context, info);
               };
