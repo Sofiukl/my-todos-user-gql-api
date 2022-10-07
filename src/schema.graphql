@@ -7,10 +7,13 @@ enum Role {
   UNKNOWN
 }
 
-type User {
+type LogInResponse {
+  token: String!
+}
+
+type GetUserResponse {
   id: ID!
   email: String!
-  password: String!
   role: String!
   createdAt: String!
   createdBy: String!
@@ -18,12 +21,9 @@ type User {
   updatedBy: String!
 }
 
-type LogInResponse {
-  token: String!
-}
-
 type Query {
-  users: [User] @auth(requires: ADMIN)
+  users: [GetUserResponse] @auth(requires: ADMIN)
+  user(userId: String): GetUserResponse
 }
 
 type Mutation {

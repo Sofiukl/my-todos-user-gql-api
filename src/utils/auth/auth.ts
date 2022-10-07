@@ -1,35 +1,23 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { MyTodosServerContext } from '../../type/common';
 
-export function getCurrentUser(context: any) {
+export function getCurrentUser(
+  context: MyTodosServerContext,
+): string | jwt.JwtPayload | null {
   const authHeader = context.req.headers.authorization;
   if (authHeader) {
-    const token = authHeader.split("Bearer ")[1];
+    const token = authHeader.split('Bearer ')[1];
     if (!token) {
       console.log("Authentication token must be 'Bearer [token]");
       return null;
     }
     try {
-      const user = jwt.verify(token, "my_secret_key");
+      const user = jwt.verify(token, 'my_secret_key');
       return user;
     } catch (err) {
-      console.log("Invalid/Expired token");
+      console.log('Invalid/Expired token');
     }
   }
-  console.log("Authorization header is not provided!");
+  console.log('Authorization header is not provided!');
   return null;
 }
-
-export const isAuthenticated = (context: any) => {
-  if (!context.currentUser) {
-    throw new Error(`Unauthenticated!`);
-  }
-  return true;
-};
-
-export const isAuthorized = (context: any, role: any) => {
-  isAuthenticated(context);
-  if (context.currentUser.role !== role) {
-    throw new Error(`Unauthorized!`);
-  }
-  return false;
-};
