@@ -1,18 +1,33 @@
-import { ApolloServer } from 'apollo-server-lambda';
 import fs from 'fs';
-import express from 'express';
-import { graphqlUploadExpress } from 'graphql-upload';
 import resolvers from './resolvers';
 import { getCurrentUser } from './utils/auth/auth';
 import { authDirective } from './directives/auth.directive';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { Callback, Context } from 'aws-lambda/handler';
 import mongoose from 'mongoose';
+import { ApolloServer } from 'apollo-server';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const normalizePort = (val: string) => {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
+const port = normalizePort(process.env.PORT || '4000');
 
 const createHandler = async () => {
   try {
-    const url = 'mongodb://localhost:27017/my-todos';
-    await mongoose.connect(url);
+    let dbUrl = 'mongodb://localhost:27017/my-todos';
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction) dbUrl = process.env.DATABASE_URL || '';
+    await mongoose.connect(dbUrl);
 
     const { authDirectiveTransformer } = authDirective('auth');
     const schema = authDirectiveTransformer(
@@ -22,65 +37,28 @@ const createHandler = async () => {
       }),
     );
 
-    const server = new ApolloServer({
+    const server: ApolloServer = new ApolloServer({
       schema,
       csrfPrevention: true,
       cache: 'bounded',
-      context: async ({ event, context, express }) => {
-        console.log(`CONTEXT : ${JSON.stringify(context)}`);
-        console.log(`typeof express.req ::: ${typeof express.req}`);
-        const user = getCurrentUser({ req: express.req });
-        console.log(`Who : ${user}`);
+      context: async ({ req }) => {
+        console.log(`typeof express.req ::: ${typeof req}`);
+        const user = getCurrentUser({ req });
+        console.log(`Who : ${JSON.stringify(user)}`);
         return {
-          headers: event.headers,
-          functionName: context.functionName,
-          event,
-          context,
-          req: express.req,
+          req,
           currentUser: user,
         };
       },
+      plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
     });
 
-    // launch the server when the Lambda is called
-    return server.createHandler({
-      expressAppFromMiddleware(middleware) {
-        const app = express();
-        app.use(graphqlUploadExpress());
-        app.use(middleware);
-        return app;
-      },
-    });
+    const { url } = await server.listen(port);
+    console.log(`🚀  Server ready at ${url}`);
   } catch (err) {
     console.log(err);
     return null;
   }
 };
 
-exports.handler = async (
-  event: unknown,
-  context: Context,
-  callback: Callback,
-) => {
-  const handler = await createHandler();
-  if (!handler) throw 'server handler not found';
-  if (handler) return await handler(event, context, callback);
-};
-
-process
-  .on('SIGTERM', async () => {
-    console.log(`Process ${process.pid} received a SIGTERM signal`);
-    console.log('Closing the database connection');
-  })
-  .on('SIGINT', (signal) => {
-    console.log(
-      `Process ${process.pid} has been interrupted with signal :`,
-      signal,
-    );
-  })
-  .on('unhandledRejection', (reason, p) => {
-    console.error(reason, 'Unhandled Rejection at Promise', p);
-  })
-  .on('uncaughtException', (err) => {
-    console.error(err, 'Uncaught Exception thrown');
-  });
+createHandler();
