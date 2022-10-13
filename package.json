@@ -7,8 +7,7 @@
     "schema-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint . --ext .ts",
     "build": "npm run schema-type && tsc",
-    "start": "npm run build && sls offline",
-    "deploy": "npm run build && AWS_ACCESS_KEY_ID=AKIA23H5NPW26XCSXKHX && AWS_SECRET_ACCESS_KEY=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 && serverless deploy"
+    "start": "npm run build && node build/server.js"
   },
   "dependencies": {
     "@graphql-tools/delegate": "^9.0.6",
@@ -17,7 +16,7 @@
     "@graphql-tools/utils": "^8.11.0",
     "apollo-datasource-rest": "^3.7.0",
     "apollo-server": "^3.10.2",
-    "apollo-server-lambda": "^3.10.2",
+    "apollo-server-core": "^3.10.3",
     "aws-sdk": "^2.1206.0",
     "axios": "^0.27.2",
     "class-validator": "^0.13.2",
@@ -47,7 +46,6 @@
     "eslint-plugin-prettier": "^3.1.4",
     "pg": "^8.8.0",
     "prettier": "^2.7.1",
-    "serverless-offline": "^9.3.0",
     "typescript": "^4.0.5"
   },
   "repository": {
