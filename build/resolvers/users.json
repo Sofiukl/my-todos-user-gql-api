@@ -1,0 +1,12 @@
+[
+    {
+        "id": "u1",
+        "password": "p1",
+        "email": "smallick@email.com",
+        "role": "ADMIN",
+        "createdAt": "23/09/2022",
+        "updatedAt": "23/09/2022",
+        "createdBy": "sofikul",
+        "updatedBy": "sofikul"
+    }
+]
