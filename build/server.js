@@ -61,14 +61,10 @@ const createHandler = () => __awaiter(void 0, void 0, void 0, function* () {
         let dbUrl = 'mongodb://localhost:27017/my-todos';
         const isProduction = process.env.NODE_ENV === 'production';
         if (isProduction) {
-            console.log(`In production mode`);
+            console.log(`NODE_ENV isProduction : ${isProduction}`);
             dbUrl = process.env.MONGODB_URI || '';
-            console.log(`DB URL : ${dbUrl}`);
         }
         yield mongoose_1.default.connect(dbUrl);
-        const dbConnection = mongoose_1.default.connection;
-        dbConnection.on('error', (err) => console.log(`Connection error ${err}`));
-        dbConnection.once('open', () => console.log('Connected to DB!'));
         const { authDirectiveTransformer } = (0, auth_directive_1.authDirective)('auth');
         const schema = authDirectiveTransformer((0, schema_1.makeExecutableSchema)({
             typeDefs: [fs_1.default.readFileSync('./src/schema.graphql', 'utf8')],
@@ -78,6 +74,7 @@ const createHandler = () => __awaiter(void 0, void 0, void 0, function* () {
             schema,
             csrfPrevention: true,
             cache: 'bounded',
+            introspection: true,
             context: ({ req }) => __awaiter(void 0, void 0, void 0, function* () {
                 console.log(`typeof express.req ::: ${typeof req}`);
                 const user = (0, auth_1.getCurrentUser)({ req });

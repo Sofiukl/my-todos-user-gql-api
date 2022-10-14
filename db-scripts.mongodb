@@ -37,6 +37,7 @@ const aggregation = [
 db.sales.aggregate(aggregation);
 
 
+db.users.find()
 
 db.users.insert({
   "password": "p1",
