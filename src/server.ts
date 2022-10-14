@@ -26,7 +26,7 @@ const createHandler = async () => {
   try {
     let dbUrl = 'mongodb://localhost:27017/my-todos';
     const isProduction = process.env.NODE_ENV === 'production';
-    if (isProduction) dbUrl = process.env.DATABASE_URL || '';
+    if (isProduction) dbUrl = process.env.MONGODB_URI || '';
     await mongoose.connect(dbUrl);
 
     const { authDirectiveTransformer } = authDirective('auth');
