@@ -60,9 +60,15 @@ const createHandler = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let dbUrl = 'mongodb://localhost:27017/my-todos';
         const isProduction = process.env.NODE_ENV === 'production';
-        if (isProduction)
-            dbUrl = process.env.DATABASE_URL || '';
+        if (isProduction) {
+            console.log(`In production mode`);
+            dbUrl = process.env.MONGODB_URI || '';
+            console.log(`DB URL : ${dbUrl}`);
+        }
         yield mongoose_1.default.connect(dbUrl);
+        const dbConnection = mongoose_1.default.connection;
+        dbConnection.on('error', (err) => console.log(`Connection error ${err}`));
+        dbConnection.once('open', () => console.log('Connected to DB!'));
         const { authDirectiveTransformer } = (0, auth_directive_1.authDirective)('auth');
         const schema = authDirectiveTransformer((0, schema_1.makeExecutableSchema)({
             typeDefs: [fs_1.default.readFileSync('./src/schema.graphql', 'utf8')],
